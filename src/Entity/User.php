@@ -106,7 +106,7 @@ class User implements UserInterface
      */
     public function getUsername(): string
     {
-        return (string) $this->email;
+        return (string)$this->email;
     }
 
     /**
@@ -161,13 +161,12 @@ class User implements UserInterface
     }
 
 
-
     /**
      * @see UserInterface
      */
     public function getPassword(): string
     {
-        return (string) $this->password;
+        return (string)$this->password;
     }
 
     public function setPassword(string $password): self
@@ -308,5 +307,18 @@ class User implements UserInterface
         }
 
         return $this;
+    }
+
+    public function isFollowing(User $user): bool
+    {
+        foreach ($this->followings as $following){
+            if($following === $user){
+                return true;
+            }
+            else{
+                return false;
+            }
+    }
+        return false;
     }
 }

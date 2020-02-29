@@ -3,11 +3,13 @@
 namespace App\Controller;
 
 use App\Entity\Post;
+use App\Entity\User;
 use App\Form\PostType;
 use App\Form\UserType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -35,6 +37,70 @@ class UserController extends AbstractController
     }
 
     /**
+     * @Route("/post", name="post")
+     * @param EntityManagerInterface $entityManager
+     * @param Request $request
+     * @return Response
+     */
+    public function postPost(EntityManagerInterface $entityManager, Request $request){
+        $post = new Post();
+        $post->setUser($this->user);
+        $form = $this->createForm(PostType::class, $post);
+        $form->handleRequest($request);
+        if($form->isSubmitted() && $form->isValid()){
+            $upload = $form->get('image')->getData();
+            if($upload){
+                $newFileName = md5(uniqid().$upload->guessExtension());
+                $upload->move(
+                    $this->getParameter('uploads_directory'),
+                    $newFileName
+                );
+                $post->setImage('uploads/'.$newFileName);
+                $entityManager->persist($post);
+                $entityManager->flush();
+            }
+            return $this->redirect($this->generateUrl('profile_profile',[
+                'username' => $this->user->getPseudo()
+            ]));
+        }
+        return $this->render('user/post.html.twig',[
+            'form' => $form->createView()
+        ]);
+    }
+
+    /**
+     * @Route("/{id}/follow", name="follow")
+     * @param int $id
+     * @param UserRepository $userRepository
+     * @param EntityManagerInterface $entityManager
+     * @return JsonResponse
+     */
+    public function follow(int $id, UserRepository $userRepository, EntityManagerInterface $entityManager){
+        $user = $userRepository->find($id);
+        if(!$this->user){
+            return $this->json('Failed', 403);
+        }
+        if($this->user->isFollowing($user)){
+            $this->user->removeFollowing($user);
+            $entityManager->persist($this->user);
+            $entityManager->flush();
+
+            return $this->json([
+                'follower' => $user->getFollowers()->count(),
+            ], 200);
+        }
+        else{
+            $this->user->addFollowing($user);
+            $entityManager->persist($this->user);
+            $entityManager->flush();
+            return $this->json([
+                'follower' => $user->getFollowers()->count(),
+            ], 200);
+
+        }
+    }
+
+    /**
      * @Route("/{username}", name="profile")
      * @param UserRepository $userRepository
      * @param string $username
@@ -42,7 +108,9 @@ class UserController extends AbstractController
      */
     public function index(UserRepository $userRepository, string $username)
     {
-        $user = $userRepository->findOneBy($username);
+        $user = $userRepository->findOneBy([
+            'pseudo' =>$username
+        ]);
         if($user->getAvatar() === ''){
             $user->setAvatar('images/default_icon.png');
         }
@@ -52,7 +120,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/edit", name="edit")
+     * @Route("/profile/edit", name="edit")
      * @param EntityManagerInterface $entityManager
      * @param UserRepository $repository
      * @param Request $request
@@ -85,40 +153,12 @@ class UserController extends AbstractController
                 $entityManager->persist($this->user);
                 $entityManager->flush();
             }
-            return $this->redirectToRoute('profile_profile');
+            return $this->redirect($this->generateUrl('profile_profile',[
+                'username' => $this->user->getPseudo()
+            ]));
         }
 
         return $this->render('user/edit.html.twig',[
-            'form' => $form->createView()
-        ]);
-    }
-
-    /**
-     * @Route("/post", name="post")
-     * @param EntityManagerInterface $entityManager
-     * @param Request $request
-     * @return Response
-     */
-    public function postPost(EntityManagerInterface $entityManager, Request $request){
-        $post = new Post();
-        $post->setUser($this->user);
-        $form = $this->createForm(PostType::class, $post);
-        $form->handleRequest($request);
-        if($form->isSubmitted() && $form->isValid()){
-            $upload = $form->get('image')->getData();
-            if($upload){
-                $newFileName = md5(uniqid().$upload->guessExtension());
-                $upload->move(
-                    $this->getParameter('uploads_directory'),
-                    $newFileName
-                );
-                $post->setImage('uploads/'.$newFileName);
-                $entityManager->persist($post);
-                $entityManager->flush();
-            }
-            return $this->redirectToRoute('profile_profile');
-        }
-        return $this->render('user/post.html.twig',[
             'form' => $form->createView()
         ]);
     }

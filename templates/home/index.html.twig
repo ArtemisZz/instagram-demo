@@ -1,7 +1,15 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello HomeController!{% endblock %}
+{% block title %}Home!{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/home.css') }}"/>
+{% endblock %}
 
 {% block body %}
-
+    <div class="container">
+        {% for post in posts %}
+            <img src="{{ asset(post.image) }}" alt="Cannot load"/>
+        {% endfor %}
+    </div>
 {% endblock %}

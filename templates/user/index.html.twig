@@ -2,35 +2,79 @@
 
 {% block title %}{{ user.pseudo }}{% endblock %}
 
-{% block stylesheets%}
-<link rel="stylesheet" href="{{ asset('css/profile.css') }}">
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/profile.css') }}">
 {% endblock %}
 
 {% block myblock %}
-<div class="jumbotron">
-    <div class="container">
-        <img id="avatar" src="{{ asset(user.avatar) }}">
-        <h2 class="display-3">{{ user.pseudo }}</h2>
-        {% if user.email == app.user.email %}
-            <a href="{{ path('profile_edit') }}" id="edit_profile">Edit profile</a>
-            <a href="{{ path('profile_post') }}" id="new_post">Add new post</a>
-        {% else %}
-            <button class="btn btn-primary"class="follow">Following</button>
-        {% endif %}
-        <p>{{ user.posts | length }} posts</p>
+    <div class="jumbotron">
+        <div class="container">
+            <img id="avatar" class="img-responsive" src="{{ asset(user.avatar) }}">
+            <h2>{{ user.pseudo }}</h2>
+            {% if user.email == app.user.email %}
+                <a href="{{ path('profile_edit') }}" id="edit_profile">Edit profile</a>
+                <a href="{{ path('profile_post') }}" id="new_post">Add new post</a>
+            {% else %}
+                {% if app.user and app.user.following(user) %}
+                    <a href="{{ path('profile_follow', {'id' : user.id}) }}" id="follow">
+                        <button class="btn btn-primary follow">Followed</button>
+                    </a>
+                {% else %}
+                    <a href="{{ path('profile_follow', {'id' : user.id}) }}" id="follow">
+                        <button class="btn btn-primary follow">Follow</button>
+                    </a>
+                {% endif %}
+            {% endif %}
+            <p>{{ user.posts | length }} posts | <span id="follower">{{ user.followers | length }} </span> followers
+                | <span id="following"> {{ user.followings | length }} </span>following </p>
+        </div>
     </div>
-</div>
 {% endblock %}
 
 {% block body %}
     <div class="row">
         {% for post in user.posts %}
-        <div class="col-md-4" id="{{ "post_#{post.id}" }}">
-            <img class="post" src="{{ asset(post.image) }}" alt="post image"/>
-        </div>
+            <div class="col-md-4" id="{{ "post_#{post.id}" }}">
+                <img class="post" src="{{ asset(post.image) }}" alt="post image"/>
+            </div>
         {% endfor %}
     </div>
 
     <hr/>
+
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        function onClickBtnFollow(event) {
+            event.preventDefault();
+            const url = this.href + '';
+            const button = document.querySelectorAll(".follow")[0];
+            const follower = document.getElementById("follower");
+            axios.get(url).then(function (response) {
+                console.log(response);
+                if (button.textContent === "Followed") {
+                    button.innerHTML = "Follow";
+                    follower.innerHTML = response.data.follower;
+                } else {
+                    button.innerHTML = "Followed";
+                    follower.innerHTML = response.data.follower;
+                }
+            })
+                .catch(function (error) {
+                    if (error.response.status === 403) {
+                        alert("Please login to follow");
+                    } else {
+                        alert(error);
+                    }
+                })
+            ;
+        }
+
+        document.querySelectorAll("a#follow").forEach(function (link) {
+            link.addEventListener('click', onClickBtnFollow)
+        });
+    </script>
 
 {% endblock %}
