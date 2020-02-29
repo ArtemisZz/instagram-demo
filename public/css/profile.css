@@ -1,0 +1,53 @@
+#avatar{
+    border-radius: 50%;
+    width: 200px;
+    height: 200px;
+    z-index: 1000;
+}
+.jumbotron h2
+{
+    position: absolute;
+    top: 15%;
+    left: 30%;
+    float: right;
+}
+
+#edit_profile, p{
+    position: absolute;
+    top: 25%;
+    left: 30%;
+    float: right;
+    font-size: large;
+}
+
+p{
+    top: 30%;
+}
+
+.custom-file-label { opacity: 0; }
+
+.custom-file-input { opacity: 1; }
+
+#new_post{
+    position: absolute;
+    top: 15%;
+    right: 10%;
+    float: right;
+    font-size: large;
+}
+
+.col-md-4{
+    padding: 1em;
+}
+
+.post{
+    width: 300px;
+    height: 300px;
+}
+
+.follow{
+    position: absolute;
+    top: 15%;
+    left: 40%;
+    float: right;
+}

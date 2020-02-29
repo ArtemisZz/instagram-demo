@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Welcome!{% endblock %}</title>
+    <link rel="stylesheet" href="https://bootswatch.com/4/flatly/bootstrap.min.css"/>
+    <style>
+        nav img {
+            width: 40px;
+            height: 40px;
+        }
+
+        .nav-link {
+            margin-left: 1em;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 20px;
+            font-weight: bolder;
+        }
+    </style>
+    {% block stylesheets %}
+    {% endblock %}
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a href="{{ path('home_home') }}"><img src="{{ asset('images/icon.png') }}" rel="Zeus icon"/></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor03"
+            aria-controls="navbarColor03" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarColor03">
+        <ul class="navbar-nav mr-auto">
+
+            <li class="nav-item active">
+                <a class="nav-link" href="#"> | Zeus</a>
+            </li>
+        </ul>
+        <form class="form-inline my-2 my-lg-0">
+            {% if not app.user %}
+                <a href="{{ path('app_login') }}"><button class="btn" type="button">Login</button></a>
+                <a href="{{ path('app_register') }}"><button class="btn" type="button">Register</button></a>
+            {% else %}
+                <a href="{{ path('profile_profile',{'username' : app.user.pseudo}) }}"><button class="btn" type="button">Profile</button></a>
+                <a href="{{ path('app_logout') }}"><button class="btn" type="button">Logout</button></a>
+            {% endif %}
+        </form>
+    </div>
+</nav>
+{% block myblock%}{% endblock %}
+<div class="container">
+    {% block body %}{% endblock %}
+</div>
+{% block javascripts %}{% endblock %}
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</body>
+</html>
