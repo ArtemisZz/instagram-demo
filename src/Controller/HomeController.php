@@ -25,6 +25,7 @@ class HomeController extends AbstractController
         if(!$this->getUser()){
             return $this->redirectToRoute('app_login');
         }
+        $posts = array_reverse($posts);
         return $this->render('home/index.html.twig', [
             'posts' => $posts,
         ]);

@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Post;
-use App\Entity\User;
+use App\Form\ChangePasswordType;
 use App\Form\PostType;
 use App\Form\UserType;
 use App\Repository\UserRepository;
@@ -97,6 +97,25 @@ class UserController extends AbstractController
                 'follower' => $user->getFollowers()->count(),
             ], 200);
 
+        }
+    }
+
+    /**
+     * @Route("/{username}/changePassword", name="changePassword")
+     * @param string $username
+     * @param UserRepository $userRepository
+     * @return Response
+     */
+    public function changePassword(string $username, UserRepository $userRepository, EntityManagerInterface $entityManager){
+        $user = $userRepository->findOneBy([
+            'pseudo' =>$username
+        ]);
+        if($user === $this->user){
+            $form = $this->createForm(ChangePasswordType::class, $user);
+
+        }
+        else{
+            return new Response("<h1>You don't have the permisson to do this");
         }
     }
 

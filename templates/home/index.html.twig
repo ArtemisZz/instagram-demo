@@ -9,7 +9,10 @@
 {% block body %}
     <div class="container">
         {% for post in posts %}
-            <img src="{{ asset(post.image) }}" alt="Cannot load"/>
+            <div class="post">
+                <a href="{{ path('profile_profile',{'username': post.user.pseudo}) }}"><p>{{ post.user.pseudo }}</p></a>
+                <img src="{{ asset(post.image) }}" class="img-responsive img-thumbnail" alt="Cannot load"/>
+            </div>
         {% endfor %}
     </div>
 {% endblock %}
